@@ -52,13 +52,16 @@ while True:
         break
     if user_input.startswith('GET '):
         client.sendall(user_input.encode('utf-8'))
+
         response = client.recv(1024).decode('utf-8', errors='ignore')
+        
         if response.startswith('Error: File'):
             print(response)
             continue
-
-        client.sendall(b'READY')
-
+        elif response == 'READY_TO_SEND':
+            client.sendall(b'READY')
+            print("Ready to receive file...")
+        
         filename = user_input[4:].strip()
         result = save_received_file(client, filename)
 

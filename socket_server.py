@@ -38,10 +38,12 @@ while True:
                     continue
                 else:
                     
-                    # file_size = os.path.getsize(file_path)
-                    # conn.sendall(str(file_size).ljust(16).encode('utf-8'))
+                    conn.sendall(b'READY_TO_SEND')
+                    ready_signal = conn.recv(1024)
+                    if ready_signal != b'READY':
+                        print("Client not ready to receive.")
+                        continue
 
-                    
                     total_bytes_sent = 0
                     with open(file_path, 'rb') as file:
                         while True:
