@@ -27,4 +27,10 @@ GET test.txt
 ```bash
 exit
 ```
+
+<h2>关闭服务</h2>
+
+```bash
+close
+```
 <h2>不支持SSL安全连接</h2>
