@@ -46,11 +46,11 @@ while True:
     if not user_input.strip():
         print("Empty command, please try again.")
         continue
-    if user_input.lower() == 'exit':
+    elif user_input.lower() == 'exit':
         print("Closing connection.")
         client.sendall(b'exit')
         break
-    if user_input.startswith('GET '):
+    elif user_input.startswith('GET '):
         client.sendall(user_input.encode('utf-8'))
 
         response = client.recv(1024).decode('utf-8', errors='ignore')
@@ -69,5 +69,15 @@ while True:
             print("File transfer failed.")
         else:
             print("File transfer completed successfully.")
+    elif user_input.lower() == 'close':
+        close_input = input("You want to close the remote server[yes/no]")
+        if close_input.lower() == 'yes' or close_input.lower() == 'y':
+            print("Server is shutting down.")
+            client.sendall(b'close')
+            break
+        else:
+            continue
+    else:
+        print("Unknown command. Please use 'GET <filename>' or 'exit'.")
 client.close()
 print("Connection closed.")

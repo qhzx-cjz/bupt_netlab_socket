@@ -4,10 +4,12 @@ import os
 socket_server = socket.socket()
 socket_server.bind(('localhost', 8888))
 
-socket_server.listen(1)
+socket_server.listen(5)
 print("Server is listening on port 8888...")
 
-while True:
+should_close = False
+
+while not should_close:
     conn, address = socket_server.accept()
     print(f"Connection from {address} has been established.")
     msg = "Successfully connected to the server!"
@@ -26,7 +28,6 @@ while True:
                 print("Exit command received, closing connection.")
                 conn.sendall(b"Connection closed.")
                 break
-            
             elif command.startswith('GET '):
                 filename = command[4:].strip()
                 file_path = os.path.join(os.getcwd(), filename)
@@ -37,7 +38,6 @@ while True:
                     print(error_msg)
                     continue
                 else:
-                    
                     conn.sendall(b'READY_TO_SEND')
                     ready_signal = conn.recv(1024)
                     if ready_signal != b'READY':
@@ -48,17 +48,27 @@ while True:
                     with open(file_path, 'rb') as file:
                         while True:
                             data = file.read(1024)
-                            if not data:
+                            if not data:    
                                 break
                             conn.sendall(data)
                             total_bytes_sent += len(data)
                     print(f"Sent {total_bytes_sent} bytes of file '{filename}' to {address}.")
                     conn.sendall(b'EOF')
+            elif command.lower() == 'close':
+                print("Close command received, shutting down server.")
+                should_close = True
+                break
             else:
+                print(f"Unknown command received: {command}")
                 conn.sendall('Unknown command. Please use "GET <filename>" or "exit".'.encode('utf-8'))
     except Exception as e:  
         print(f"An error occurred: {e}")
     finally:
-        conn.close()
-        print(f"Connection with {address} closed.")
-    conn.close()
+        if not should_close:
+            conn.close()
+            print(f"Connection with {address} closed.")
+            print("Server is listening on port 8888...")
+        else:
+            conn.close()
+            print(f"Connection with {address} closed.")
+            print("Server is shutting down.")
